@@ -31,9 +31,25 @@ public class UserDao {
         }
     }
 
+    public UserEntity authenticate(String username,String password) {
+        try {
+            return entityManager.createNamedQuery("userByUsernameAndPassword", UserEntity.class).setParameter("username", username).setParameter("password",password).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
     public UserEntity getUserByEmail(String email) {
         try {
             return entityManager.createNamedQuery("userByEmail", UserEntity.class).setParameter("email", email).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public UserEntity getUserByUuid(String uuid) {
+        try {
+            return entityManager.createNamedQuery("userByUuid", UserEntity.class).setParameter("uuid", uuid).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
