@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RestController
 @RequestMapping("/admin")
 public class AdminController {
 
@@ -26,4 +27,13 @@ public class AdminController {
      * @throws AuthorizationFailedException
      * @throws UserNotFoundException
      */
+
+    @DeleteMapping(value = "/user/{userId}")
+    public ResponseEntity<UserDeleteResponse> deleteUser(@PathVariable String userId, @RequestHeader("authorization") String authorization)throws UserNotFoundException, AuthorizationFailedException{
+        UserEntity userEntity = adminBusinessService.deleteUser(authorization,userId);
+        UserDeleteResponse userDeleteResponse = new UserDeleteResponse();
+        userDeleteResponse.setId(userEntity.getUuid());
+        userDeleteResponse.setStatus("User Successfully deleted");
+        return new ResponseEntity<>(userDeleteResponse, HttpStatus.OK);
+    }
 }
