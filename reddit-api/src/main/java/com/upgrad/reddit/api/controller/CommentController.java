@@ -13,11 +13,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.TypedQuery;
+import javax.xml.stream.events.Comment;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+@RestController
 @RequestMapping("/")
 public class CommentController {
 
@@ -35,6 +37,21 @@ public class CommentController {
      * @throws AuthorizationFailedException
      * @throws InvalidPostException
      */
+    @PostMapping(value = "/post/{postId}/comment/create")
+    public ResponseEntity<CommentResponse> createComment(@RequestBody CommentRequest commentRequest, @PathVariable String postId, @RequestHeader("authorization") String authorization)throws AuthorizationFailedException, InvalidPostException{
+        PostEntity postEntity = commentBusinessService.getPostByUuid(postId);
+        if(postEntity == null){
+            throw new InvalidPostException("POS-001","The post entered is invalid");
+        }
+        CommentEntity commentEntity = new CommentEntity();
+        commentEntity.setComment(commentRequest.getComment());
+        commentEntity.setPost(postEntity);
+        CommentEntity comment = commentBusinessService.createComment(commentEntity,authorization);
+        CommentResponse response = new CommentResponse();
+        response.setId(comment.getUuid());
+        response.setStatus("Comment Created");
+        return new ResponseEntity<CommentResponse>(response,HttpStatus.OK);
+    }
 
     /**
      * A controller method to edit an comment in the database.
@@ -46,6 +63,16 @@ public class CommentController {
      * @throws AuthorizationFailedException
      * @throws CommentNotFoundException
      */
+    @PutMapping(value = "/comment/edit/{commentId}")
+    public ResponseEntity<CommentEditResponse> editComment(@RequestBody CommentEditRequest commentEditRequest,@PathVariable String commentId,@RequestHeader("authorization") String authorization)throws AuthorizationFailedException,CommentNotFoundException{
+        CommentEntity commentEntity = new CommentEntity();
+        commentEntity.setComment(commentEditRequest.getContent());
+        CommentEntity comment = commentBusinessService.editCommentContent(commentEntity,commentId,authorization);
+        CommentEditResponse response = new CommentEditResponse();
+        response.setId(comment.getUuid());
+        response.setStatus("Comment Edited");
+        return new ResponseEntity<CommentEditResponse>(response,HttpStatus.OK);
+    }
 
     /**
      * A controller method to delete an comment in the database.
@@ -56,6 +83,14 @@ public class CommentController {
      * @throws AuthorizationFailedException
      * @throws CommentNotFoundException
      */
+    @DeleteMapping(value = "/comment/delete/{commentId}")
+    public ResponseEntity<CommentDeleteResponse> deleteComment(@PathVariable String commentId,@RequestHeader("authorization") String authorization)throws AuthorizationFailedException,CommentNotFoundException{
+        CommentEntity comment = commentBusinessService.deleteComment(commentId,authorization);
+        CommentDeleteResponse response = new CommentDeleteResponse();
+        response.setId(comment.getUuid());
+        response.setStatus("Comment Deleted");
+        return new ResponseEntity<CommentDeleteResponse>(response,HttpStatus.OK);
+    }
 
     /**
      * A controller method to fetch all the comments for a specific post in the database.
@@ -66,5 +101,21 @@ public class CommentController {
      * @throws AuthorizationFailedException
      * @throws InvalidPostException
      */
+    @GetMapping(value = "comment/all/{postId}")
+    public ResponseEntity<List<CommentDetailsResponse>> getCommentsByPost(@PathVariable String postId,@RequestHeader("authorization") String authorization)throws AuthorizationFailedException,InvalidPostException{
+        TypedQuery<CommentEntity> commentEntities = commentBusinessService.getCommentsByPost(postId,authorization);
+        List<CommentEntity> comments = commentEntities.getResultList();
+        List<CommentDetailsResponse> responses = new ArrayList<>();
+        if(comments != null){
+            for(CommentEntity comment: comments){
+                CommentDetailsResponse response = new CommentDetailsResponse();
+                response.setId(comment.getUuid());
+                response.setCommentContent(comment.getComment());
+                response.setPostContent(comment.getPost().getContent());
+                responses.add(response);
+            }
+        }
+        return new ResponseEntity<List<CommentDetailsResponse>>(responses,HttpStatus.OK);
+    }
 
 }
