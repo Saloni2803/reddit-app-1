@@ -5,10 +5,7 @@
     <file url="file://$PROJECT_DIR$/reddit-api" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/reddit-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/reddit-db" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/reddit-db/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/reddit-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/reddit-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
 </project>

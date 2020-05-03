@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RestController
 @RequestMapping("/")
 public class CommonController {
 
@@ -26,4 +27,18 @@ public class CommonController {
      * @throws UserNotFoundException
      * @throws AuthorizationFailedException
      */
+    @GetMapping(value = "/userprofile/{userId}")
+    public ResponseEntity<UserDetailsResponse> getUserDetails(@PathVariable String userId, @RequestHeader("authorization") String authorization) throws UserNotFoundException, AuthorizationFailedException {
+        UserEntity userEntity = commonBusinessService.getUser(userId, authorization);
+        UserDetailsResponse userDetailsResponse = new UserDetailsResponse();
+        userDetailsResponse.setAboutMe(userEntity.getAboutMe());
+        userDetailsResponse.setContactNumber(userEntity.getContactNumber());
+        userDetailsResponse.setCountry(userEntity.getCountry());
+        userDetailsResponse.setDob(userEntity.getDob());
+        userDetailsResponse.setEmailAddress(userEntity.getEmail());
+        userDetailsResponse.setFirstName(userEntity.getFirstName());
+        userDetailsResponse.setLastName(userEntity.getLastName());
+        userDetailsResponse.setUserName(userEntity.getUserName());
+        return new ResponseEntity<>(userDetailsResponse, HttpStatus.OK);
+    }
 }
